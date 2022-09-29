@@ -53,12 +53,10 @@ def create_app(test_config=None):
         
         if len(categories) == 0:
             abort(404)
-            
-        formatted_categories = [category.format() for category in categories]
-        
+                
         return jsonify({
             'success': True,
-            'categories': formatted_categories
+            'categories': {category.id: category.type for category in categories}
         })
 
 
@@ -88,9 +86,15 @@ def create_app(test_config=None):
             current_category_id = int(question['category'])
             category = Category.query.get(current_category_id)
 
+        # current_category = {
+        #     'id': category.id,
+        #     'type': category.type,
+        # }
+
+        id = str(category.id)
+
         current_category = {
-            'id': category.id,
-            'type': category.type,
+            id: category.type,
         }
                     
         if len(current_questions) == 0:
@@ -99,7 +103,7 @@ def create_app(test_config=None):
         return jsonify({
             'success': True,
             'questions': current_questions,
-            'total_questions': len(selection),
+            'total_questions': len(Question.query.all()),
             'current_category': current_category,
             'categories': formatted_categories,
         })
@@ -123,7 +127,7 @@ def create_app(test_config=None):
             
             selection = Question.query.order_by(Question.id).all()
             current_questions = paginate_questions(request, selection)
-            total_questions = len(selection)
+            total_questions = len(Question.query.all())
             
             return jsonify({
                 'success': True,
@@ -153,18 +157,15 @@ def create_app(test_config=None):
         new_category = body.get('category', None)
         new_difficulty = body.get('difficulty', None)
         
-        try:
-            
-            question = Question(question = new_question, 
-                                answer = new_answer, 
-                                category = new_category, 
-                                difficulty = new_difficulty
-                                )      
+        try:   
+            question = Question(question = new_question, answer = new_answer, 
+                                category = new_category, difficulty = new_difficulty)
+                  
             question.insert()
             
             selection = Question.query.order_by(Question.id).all()
             current_questions = paginate_questions(request, selection)
-            total_questions = len(selection)
+            total_questions = len(Question.query.all())
             
             return jsonify({
                 'success': True,
@@ -191,13 +192,16 @@ def create_app(test_config=None):
         search = body.get('searchTerm', None)
 
         if search:
-            selection = Question.query.order_by(Question.id).filter(Question.question.ilike(f"%{search}%"))
+            selection = Question.query.order_by(Question.id).filter(
+                Question.question.ilike(f"%{search}%")
+            ).all()
             current_questions = paginate_questions(request, selection)
+            total_questions = len(Question.query.all())
 
             return jsonify({
                 'success': True,
                 'questions': current_questions,
-                'total_questions': len(selection)
+                'total_questions': total_questions
             })
         else:
             abort(400)
@@ -221,7 +225,7 @@ def create_app(test_config=None):
                 'success': True,
                 'questions': current_questions,
                 'category': category_id,
-                'total_questions': len(selection)
+                'total_questions': len(Question.query.all())
             })
         except:
             abort(422)
@@ -240,15 +244,15 @@ def create_app(test_config=None):
     @app.route('/quizzes', methods=['POST'])
     def play_quiz():
         body = request.get_json()
-        previous_question = body.get('previous_question', None)
+        previous_questions = body.get('previous_questions', None)
         quiz_category = body.get('quiz_category', None)
         
         try:
             if quiz_category['id'] == 0:
-                available_questions = Question.query.filter(Question.id.notin_(previous_question)).all()
+                available_questions = Question.query.filter(Question.id.notin_(previous_questions)).all()
             else:
-                available_questions = Question.query.filter(
-                    Question.category == str(quiz_category['id'])).filter(Question.id.notin_(previous_question)).all()
+                available_questions = Question.query.filter(Question.category == quiz_category['id']
+                    ).filter(Question.id.notin_(previous_questions)).all()
                     
             if len(available_questions) > 0:
                 quiz_question = available_questions[random.randrange(0, len(available_questions))]
