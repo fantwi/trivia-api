@@ -247,6 +247,18 @@ class TriviaTestCase(unittest.TestCase):
         self.assertTrue(data['total_questions'])
         self.assertTrue(data['category'])
 
+    """
+        Test for 422 sent when getting question by invalid category id. This test should fail.
+    """
+
+    def test_422_invalid_category(self):
+        res = self.client().get('/categories/1000/questions')
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 422)
+        self.assertEqual(data['success'], False)
+        self.assertEqual(data['message'], 'unprocessable')
+
 
 # Make the tests conveniently executable
 if __name__ == "__main__":
