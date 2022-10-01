@@ -87,6 +87,26 @@ The API will return five error types when requests fail:
 
 You will need to provide detailed documentation of your API endpoints including the URL, request parameters, and the response body. Use the example below as a reference.
 
+### GET /categories
+- General:
+    - Returns a dictionary of all category objects and success value. The keys of the dictionary are the ids and the values are their corresponding string category types.
+- Sample: `curl http://127.0.0.1:5000/categories`
+
+``` {
+  "categories": {
+    "1": "Science",
+    "2": "Art",
+    "3": "Geography",
+    "4": "History",
+    "5": "Entertainment",
+    "6": "Sports"
+  },
+  "success": true
+}
+```
+
+
+
 ### Documentation Example
 
 `GET '/api/v1.0/categories'`
