@@ -76,16 +76,16 @@ class TriviaTestCase(unittest.TestCase):
         self.assertTrue(len(data['categories']))
 
     """
-        Test using invalid method
+        Test getting a specific category. This test should fail.
     """
 
-    def test_405_get_all_categories(self):
-        # Check method [either get or post]
-        res = self.client().post('/categories')
+    def test_404_get_all_categories(self):
+        res = self.client().get('/categories/200')
         data = json.loads(res.data)
 
-        self.assertEqual(res.status_code, 405)
-        self.assertEqual(data['message'], 'method not allowed')
+        self.assertEqual(res.status_code, 404)
+        self.assertEqual(data['success'], False)
+        self.assertEqual(data['message'], 'resource not found')
 
     """
         Test getting paginated questions. This test should pass.
@@ -94,7 +94,6 @@ class TriviaTestCase(unittest.TestCase):
     def test_get_paginated_questions(self):
         res = self.client().get('/questions')
         data = json.loads(res.data)
-        #categories = Category.query.order_by(Category.id).all()
         self.assertEqual(res.status_code, 200)
         self.assertEqual(data['success'], True)
         self.assertTrue(data['total_questions'])
@@ -115,31 +114,18 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(data['message'], 'resource not found')
 
     """
-        Test 500 internal server error when requesting for an invalid page. 
-        This test should fail.
-    """
-
-    def test_500_sent_requesting_beyond_valid_page(self):
-        res = self.client().get('/questions?page=10000')
-        data = json.loads(res.data)
-
-        self.assertEqual(res.status_code, 500)
-        self.assertEqual(data['success'], False)
-        self.assertEqual(data['message'], 'internal server error')
-
-    """
         Test deleting a question. This test should pass.
     """
 
     def test_delete_question(self):
-        res = self.client().delete('/questions/2')
+        res = self.client().delete('/questions/6')
         data = json.loads(res.data)
 
-        question = Question.query.filter(Question.id == 2).one_or_none()
+        question = Question.query.filter(Question.id == 6).one_or_none()
 
         self.assertEqual(res.status_code, 200)
         self.assertEqual(data['success'], True)
-        self.assertEqual(data['deleted'], 2)
+        self.assertEqual(data['deleted'], 6)
         self.assertTrue(len(data['questions']))
         self.assertTrue(data['total_questions'])
         self.assertEqual(question, None)
@@ -199,30 +185,17 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(data['message'], 'method not allowed')
 
     """
-        Test 404 if question creation is not allowed. 
+        Test 400 bad request for question creation if no question is sent. 
         This test should fail.
     """
 
-    def test_404_if_question_creation_not_allowed(self):
-        res = self.client().post('/questions', json=self.new_question2)
+    def test_400_if_question_creation_not_allowed(self):
+        res = self.client().post('/questions')
         data = json.loads(res.data)
 
-        self.assertEqual(res.status_code, 404)
+        self.assertEqual(res.status_code, 400)
         self.assertEqual(data['success'], False)
-        self.assertEqual(data['message'], 'resource not found')
-
-    """
-        Test 422 if question creation is not allowed. 
-        This test should fail.
-    """
-
-    def test_422_if_question_creation_not_allowed(self):
-        res = self.client().post('/questions', json=self.new_question2)
-        data = json.loads(res.data)
-
-        self.assertEqual(res.status_code, 422)
-        self.assertEqual(data['success'], False)
-        self.assertEqual(data['message'], 'unprocessable')
+        self.assertEqual(data['message'], 'bad request')
 
     """
         Test successfully searching for a question. 
@@ -236,7 +209,7 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(res.status_code, 200)
         self.assertEqual(data['success'], True)
         self.assertTrue(data['total_questions'])
-        self.assertTrue(len(data['current_questions']))
+        self.assertTrue(len(data['questions']))
 
     """
         Test 400 bad request if search term is empty. 
@@ -290,33 +263,33 @@ class TriviaTestCase(unittest.TestCase):
 
         self.assertEqual(res.status_code, 200)
         self.assertEqual(data['success'], True)
-        self.assertEqual(len(data['question']), 1)
+        self.assertTrue(data['question'])
 
     """
-        Test 400 bad request sent when empty json data is sent while
+        Test 422 unprocessable sent when empty json data is sent while
         playing the quiz. This test will fail.
     """
 
-    def test_400_play_quiz_empty_data(self):
+    def test_422_play_quiz_empty_data(self):
         res = self.client().post('/quizzes', json={})
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 422)
+        self.assertEqual(data['success'], False)
+        self.assertEqual(data['message'], 'unprocessable')
+
+    """
+        Test 400 bad request sent when no data is sent while playing the quiz. 
+        This test will fail.
+    """
+
+    def test_400_play_quiz_no_data(self):
+        res = self.client().post('/quizzes')
         data = json.loads(res.data)
 
         self.assertEqual(res.status_code, 400)
         self.assertEqual(data['success'], False)
-        self.assertEqual(len(data['message']), 'bad request')
-
-    """
-        Test 405 sent when no data is sent while playing the quiz. 
-        This test will fail.
-    """
-
-    def test_405_play_quiz_no_data(self):
-        res = self.client().post('/quizzes')
-        data = json.loads(res.data)
-
-        self.assertEqual(res.status_code, 405)
-        self.assertEqual(data['success'], False)
-        self.assertEqual(len(data['message']), 'method not found')
+        self.assertEqual(data['message'], 'bad request')
 
 
 # Make the tests conveniently executable

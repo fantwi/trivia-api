@@ -79,6 +79,9 @@ def create_app(test_config=None):
         current_questions = paginate_questions(request, selection)
         categories = Category.query.order_by(Category.id).all()
 
+        if len(current_questions) == 0:
+            abort(404)
+
         formatted_categories = {
             category.id: category.type for category in categories
         }
@@ -295,7 +298,7 @@ def create_app(test_config=None):
         return jsonify({
             'success': False,
             'error': 404,
-            'message': 'resourse not found'
+            'message': 'resource not found'
         }), 404
 
     @app.errorhandler(405)
@@ -303,7 +306,7 @@ def create_app(test_config=None):
         return jsonify({
             'success': False,
             'error': 405,
-            'message': 'method not found'
+            'message': 'method not allowed'
         }), 405
 
     @app.errorhandler(422)
