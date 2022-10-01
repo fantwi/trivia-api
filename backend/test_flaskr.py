@@ -27,6 +27,7 @@ class TriviaTestCase(unittest.TestCase):
             # create all tables
             self.db.create_all()
 
+        # Data for testing successful creation of question
         self.new_question = {
             'question': 'Who was the US president in 2021',
             'answer': 'Joe Biden',
@@ -34,14 +35,17 @@ class TriviaTestCase(unittest.TestCase):
             'difficulty': '4',
         }
 
+        # Data for testing successful search for questions
         self.search_term = {
             'searchTerm': 'clay'
         }
 
+        # Data for testing unsuccessful search for questions
         self.search_term2 = {
             'searchTerm': ''
         }
 
+        # Data for testing successfully geting questions to play the quiz
         self.quiz_data = {
             'previous_questions': [6, 12],
             'quiz_category': {
@@ -55,7 +59,7 @@ class TriviaTestCase(unittest.TestCase):
         pass
 
     """
-    TODO
+    @DONE
     Write at least one test for each test for successful operation and for expected errors.
     """
 
@@ -167,7 +171,8 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(data['message'], 'resource not found')
 
     """
-        Test the creation of a new question. This test should pass. 
+        Test the creation of a new question. 
+        This test should pass. 
     """
 
     def test_create_new_question(self):
@@ -181,7 +186,8 @@ class TriviaTestCase(unittest.TestCase):
         self.assertTrue(len(data['questions']))
 
     """
-        Test 405 if question creation is not allowed. This test should fail.
+        Test 405 if question creation is not allowed. 
+        This test should fail.
     """
 
     def test_405_if_question_creation_not_allowed(self):
@@ -193,7 +199,8 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(data['message'], 'method not allowed')
 
     """
-        Test 404 if question creation is not allowed. This test should fail.
+        Test 404 if question creation is not allowed. 
+        This test should fail.
     """
 
     def test_404_if_question_creation_not_allowed(self):
@@ -205,7 +212,8 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(data['message'], 'resource not found')
 
     """
-        Test 422 if question creation is not allowed. This test should fail.
+        Test 422 if question creation is not allowed. 
+        This test should fail.
     """
 
     def test_422_if_question_creation_not_allowed(self):
@@ -217,7 +225,8 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(data['message'], 'unprocessable')
 
     """
-        Test successfully searching for a question. This test will pass.
+        Test successfully searching for a question. 
+        This test will pass.
     """
 
     def test_search_question(self):
@@ -230,7 +239,8 @@ class TriviaTestCase(unittest.TestCase):
         self.assertTrue(len(data['current_questions']))
 
     """
-        Test 400 bad request if search term is empty. This test will fail.
+        Test 400 bad request if search term is empty. 
+        This test will fail.
     """
 
     def test_400_sent_empty_search_term(self):
@@ -242,7 +252,8 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(data['message'], 'bad request')
 
     """
-        Test successfully getting questions by category. This test will pass.
+        Test successfully getting questions by category. 
+        This test will pass.
     """
 
     def test_get_question_by_category(self):
@@ -256,7 +267,8 @@ class TriviaTestCase(unittest.TestCase):
         self.assertTrue(data['category'])
 
     """
-        Test for 422 sent when getting question by invalid category id. This test should fail.
+        Test for 422 sent when getting question by invalid category id. 
+        This test should fail.
     """
 
     def test_422_invalid_category(self):
@@ -268,7 +280,8 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(data['message'], 'unprocessable')
 
     """
-        Test for successfully getting questions to play the quiz. This test should pass.
+        Test for successfully getting questions to play the quiz. 
+        This test should pass.
     """
 
     def test_play_quiz(self):
@@ -280,21 +293,24 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(len(data['question']), 1)
 
     """
-        """
+        Test 400 bad request sent when empty json data is sent while
+        playing the quiz. This test will fail.
+    """
 
-    def test_play_quiz(self):
+    def test_400_play_quiz_empty_data(self):
         res = self.client().post('/quizzes', json={})
         data = json.loads(res.data)
 
-        self.assertEqual(res.status_code, 200)
-        self.assertEqual(data['success'], True)
-        self.assertEqual(len(data['question']), 1)
+        self.assertEqual(res.status_code, 400)
+        self.assertEqual(data['success'], False)
+        self.assertEqual(len(data['message']), 'bad request')
 
     """
-        Test 405 sent when no data is sent while playing the quiz. This test will fail.
+        Test 405 sent when no data is sent while playing the quiz. 
+        This test will fail.
     """
 
-    def test_play_quiz(self):
+    def test_405_play_quiz_no_data(self):
         res = self.client().post('/quizzes')
         data = json.loads(res.data)
 
