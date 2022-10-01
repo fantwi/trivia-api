@@ -16,7 +16,8 @@ class TriviaTestCase(unittest.TestCase):
         self.app = create_app()
         self.client = self.app.test_client
         self.database_name = TEST_DB_NAME
-        self.database_path = "postgresql://{}:{}@{}/{}".format(DB_USER, DB_PASS, 'localhost:5432', self.database_name)
+        self.database_path = "postgresql://{}:{}@{}/{}".format(
+            DB_USER, DB_PASS, 'localhost:5432', self.database_name)
         setup_db(self.app, self.database_path)
 
         # binds the app to the current context
@@ -32,7 +33,7 @@ class TriviaTestCase(unittest.TestCase):
             'category': '4',
             'difficulty': '4',
         }
-    
+
     def tearDown(self):
         """Executed after reach test"""
         pass
@@ -45,7 +46,8 @@ class TriviaTestCase(unittest.TestCase):
     """
         Test getting all categories. This test should pass.
     """
-    def test_get_categories(self):
+
+    def test_get_all_categories(self):
         res = self.client().get('/categories')
         data = json.loads(res.data)
 
@@ -54,8 +56,21 @@ class TriviaTestCase(unittest.TestCase):
         self.assertTrue(len(data['categories']))
 
     """
+        Test using invalid method
+    """
+
+    def test_405_get_all_categories(self):
+        # Check method [either get or post]
+        res = self.client().post('/categories')
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 405)
+        self.assertEqual(data['message'], 'method not allowed')
+
+    """
         Test getting paginated questions. This test should pass.
     """
+
     def test_get_paginated_questions(self):
         res = self.client().get('/questions')
         data = json.loads(res.data)
@@ -70,17 +85,19 @@ class TriviaTestCase(unittest.TestCase):
     """
         Test requesting for an invalid page. This test should fail.
     """
+
     def test_404_sent_requesting_beyond_valid_page(self):
         res = self.client().get('/questions?page=1000')
         data = json.loads(res.data)
 
         self.assertEqual(res.status_code, 404)
         self.assertEqual(data['success'], False)
-        self.assertEqual(data['message'], 'Resource not found')
+        self.assertEqual(data['message'], 'resource not found')
 
     """
         Test deleting a question. This test should pass.
     """
+
     def test_delete_question(self):
         res = self.client().delete('/questions/5')
         data = json.loads(res.data)
@@ -98,17 +115,19 @@ class TriviaTestCase(unittest.TestCase):
         Test 422 Unprocessable sent if question does not exist 
         when deleting a question. This test should fail.
     """
+
     def test_422_sent_if_question_does_not_exist(self):
         res = self.client().delete('/questions/1000')
         data = json.loads(res.data)
 
         self.assertEqual(res.status_code, 422)
         self.assertEqual(data['success'], False)
-        self.assertEqual(data['message'], 'Unprocessable')
+        self.assertEqual(data['message'], 'unprocessable')
 
     """
         Test the creation of a new question. This test should pass. 
     """
+
     def test_create_new_question(self):
         res = self.client().post('/questions', json=self.new_question)
         body = json.loads(res.data)
@@ -122,13 +141,14 @@ class TriviaTestCase(unittest.TestCase):
     """
         Test 405 if question creation is not allowed. This test should fail.
     """
+
     def test_405_if_question_creation_not_allowed(self):
         res = self.client().post('/question/50', json=self.new_question)
         body = json.loads(res.data)
 
         self.assertEqual(res.status_code, 405)
         self.assertEqual(body['success'], False)
-        self.assertEqual(body['message'], 'Method not allowed')
+        self.assertEqual(body['message'], 'method not allowed')
 
 
 # Make the tests conveniently executable
