@@ -34,6 +34,14 @@ class TriviaTestCase(unittest.TestCase):
             'difficulty': '4',
         }
 
+        self.search_term = {
+            'searchTerm': 'clay'
+        }
+
+        self.search_term2 = {
+            'searchTerm': ''
+        }
+
     def tearDown(self):
         """Executed after reach test"""
         pass
@@ -87,7 +95,7 @@ class TriviaTestCase(unittest.TestCase):
     """
 
     def test_404_sent_requesting_beyond_valid_page(self):
-        res = self.client().get('/questions?page=1000')
+        res = self.client().get('/questions?page=10000')
         data = json.loads(res.data)
 
         self.assertEqual(res.status_code, 404)
@@ -95,18 +103,31 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(data['message'], 'resource not found')
 
     """
+        Test 500 internal server error when requesting for an invalid page. 
+        This test should fail.
+    """
+
+    def test_500_sent_requesting_beyond_valid_page(self):
+        res = self.client().get('/questions?page=10000')
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 500)
+        self.assertEqual(data['success'], False)
+        self.assertEqual(data['message'], 'internal server error')
+
+    """
         Test deleting a question. This test should pass.
     """
 
     def test_delete_question(self):
-        res = self.client().delete('/questions/5')
+        res = self.client().delete('/questions/2')
         data = json.loads(res.data)
 
-        question = Question.query.filter(Question.id == 1).one_or_none()
+        question = Question.query.filter(Question.id == 2).one_or_none()
 
         self.assertEqual(res.status_code, 200)
         self.assertEqual(data['success'], True)
-        self.assertEqual(data['deleted'], 5)
+        self.assertEqual(data['deleted'], 2)
         self.assertTrue(len(data['questions']))
         self.assertTrue(data['total_questions'])
         self.assertEqual(question, None)
@@ -125,30 +146,92 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(data['message'], 'unprocessable')
 
     """
+        Test 404 resource not found sent if question id is invalid 
+        when deleting a question. This test should fail.
+    """
+
+    def test_404_sent_if_question_does_not_exist(self):
+        res = self.client().delete('/questions/asdfgh10')
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 404)
+        self.assertEqual(data['success'], False)
+        self.assertEqual(data['message'], 'resource not found')
+
+    """
         Test the creation of a new question. This test should pass. 
     """
 
     def test_create_new_question(self):
         res = self.client().post('/questions', json=self.new_question)
-        body = json.loads(res.data)
+        data = json.loads(res.data)
 
         self.assertEqual(res.status_code, 200)
-        self.assertEqual(body['success'], True)
-        self.assertTrue(body['created'])
-        self.assertTrue(body['total_questions'])
-        self.assertTrue(len(body['questions']))
+        self.assertEqual(data['success'], True)
+        self.assertTrue(data['created'])
+        self.assertTrue(data['total_questions'])
+        self.assertTrue(len(data['questions']))
 
     """
         Test 405 if question creation is not allowed. This test should fail.
     """
 
     def test_405_if_question_creation_not_allowed(self):
-        res = self.client().post('/question/50', json=self.new_question)
-        body = json.loads(res.data)
+        res = self.client().post('/questions/50', json=self.new_question)
+        data = json.loads(res.data)
 
         self.assertEqual(res.status_code, 405)
-        self.assertEqual(body['success'], False)
-        self.assertEqual(body['message'], 'method not allowed')
+        self.assertEqual(data['success'], False)
+        self.assertEqual(data['message'], 'method not allowed')
+
+    """
+        Test 404 if question creation is not allowed. This test should fail.
+    """
+
+    def test_404_if_question_creation_not_allowed(self):
+        res = self.client().post('/questions', json=self.new_question2)
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 404)
+        self.assertEqual(data['success'], False)
+        self.assertEqual(data['message'], 'resource not found')
+
+    """
+        Test 422 if question creation is not allowed. This test should fail.
+    """
+
+    def test_422_if_question_creation_not_allowed(self):
+        res = self.client().post('/questions', json=self.new_question2)
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 422)
+        self.assertEqual(data['success'], False)
+        self.assertEqual(data['message'], 'unprocessable')
+
+    """
+        Test successfully searching for a question. This test will pass.
+    """
+
+    def test_search_question(self):
+        res = self.client().post('/questions/search', json=self.search_term)
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(data['success'], True)
+        self.assertTrue(data['total_questions'])
+        self.assertTrue(len(data['current_questions']))
+
+    """
+        Test 400 bad request if search term is empty. This test will fail.
+    """
+
+    def test_400_sent_empty_search_term(self):
+        res = self.client().post('/questions/search', json=self.search_term2)
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 400)
+        self.assertEqual(data['success'], False)
+        self.assertEqual(data['message'], 'bad request')
 
 
 # Make the tests conveniently executable
