@@ -42,6 +42,14 @@ class TriviaTestCase(unittest.TestCase):
             'searchTerm': ''
         }
 
+        self.quiz_data = {
+            'previous_questions': [6, 12],
+            'quiz_category': {
+                'id': 3,
+                'type': 'Geography'
+            }
+        }
+
     def tearDown(self):
         """Executed after reach test"""
         pass
@@ -258,6 +266,18 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(res.status_code, 422)
         self.assertEqual(data['success'], False)
         self.assertEqual(data['message'], 'unprocessable')
+
+    """
+        Test for successfully getting questions to play the quiz. This test should pass.
+    """
+
+    def test_play_quiz(self):
+        res = self.client().post('/quizzes', json=self.quiz_data)
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(data['success'], True)
+        self.assertEqual(len(data['question']), 1)
 
 
 # Make the tests conveniently executable
