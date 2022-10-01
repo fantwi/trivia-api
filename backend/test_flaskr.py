@@ -279,6 +279,29 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(data['success'], True)
         self.assertEqual(len(data['question']), 1)
 
+    """
+        """
+
+    def test_play_quiz(self):
+        res = self.client().post('/quizzes', json={})
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(data['success'], True)
+        self.assertEqual(len(data['question']), 1)
+
+    """
+        Test 405 sent when no data is sent while playing the quiz. This test will fail.
+    """
+
+    def test_play_quiz(self):
+        res = self.client().post('/quizzes')
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 405)
+        self.assertEqual(data['success'], False)
+        self.assertEqual(len(data['message']), 'method not found')
+
 
 # Make the tests conveniently executable
 if __name__ == "__main__":
