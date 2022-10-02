@@ -87,7 +87,7 @@ The API will return five error types when requests fail:
 
 You will need to provide detailed documentation of your API endpoints including the URL, request parameters, and the response body. Use the example below as a reference.
 
-### GET /categories
+### `GET '/categories'`
 - General:
     - Returns a dictionary of all category objects and success value. The keys of the dictionary are the ids and the values are their corresponding string category types.
 - Sample: `curl http://127.0.0.1:5000/categories`
@@ -105,7 +105,7 @@ You will need to provide detailed documentation of your API endpoints including 
     }
     ```
 
-### GET /questions
+### `GET '/questions?page={page_number}'`
 - General: 
     - Returns a dictionary of all question objects, all categories, current category, total number of questions and success value. 
     - Results are paginated in groups of 10. Include a request argument to choose page number, starting from 1.
@@ -199,7 +199,7 @@ You will need to provide detailed documentation of your API endpoints including 
       "total_questions": 23
     ```
 
-### DELETE /questions/{book_id}
+### `DELETE '/questions/{book_id}'`
 - General:
     - Deletes the question with the given ID if it exists. Returns the id of the deleted question, success value, total questions, and list of questions based on the current page number to update the frontend.
 - Sample: `curl -X DELETE http://127.0.0.1:5000/questions/22?page=2`
@@ -283,7 +283,7 @@ You will need to provide detailed documentation of your API endpoints including 
     }
     ```
 
-### POST /questions
+###  `POST '/questions'`
 - General:
     - Creates a new question using the submitted question, answer, category, and difficulty. Returns the id of the created question, success value, total questions, and list of questions based on the current page number to update the frontend.
 - Sample: `curl http://127.0.0.1:5000/questions?page=3 -X POST -H "Content-Type: application/json" -d '{"question":"Who was the president of Ghana in 2015", "answer":"John Mahama", "category": "4", "difficulty": "3"}'`
@@ -318,58 +318,79 @@ You will need to provide detailed documentation of your API endpoints including 
     }
     ```
 
-### GET /categories
+### `POST '/questions/search'`
 - General:
-    - Returns a dictionary of all category objects and success value. The keys of the dictionary are the ids and the values are their corresponding string category types.
-- Sample: `curl http://127.0.0.1:5000/categories`
+    - Returns a list of questions containing the searchTerm, success value, and total questions. 
+- Sample: `curl http://127.0.0.1:5000/questions/search -X POST -H "Content-Type": "application/json" -d '{"searchTerm":"clay"}'`
 - Response:
     ``` {
-      "categories": {
-        "1": "Science",
-        "2": "Art",
-        "3": "Geography",
-        "4": "History",
-        "5": "Entertainment",
-        "6": "Sports"
-      },
-      "success": true
-    }
-    ```
-```
-
-### GET /categories
-- General:
-    - Returns a dictionary of all category objects and success value. The keys of the dictionary are the ids and the values are their corresponding string category types.
-- Sample: `curl http://127.0.0.1:5000/categories`
-- Response:
-    ``` {
-      "categories": {
-        "1": "Science",
-        "2": "Art",
-        "3": "Geography",
-        "4": "History",
-        "5": "Entertainment",
-        "6": "Sports"
-      },
-      "success": true
-    }
+      "questions": {
+          "answer": "Muhammad Ali",
+          "category": "4",
+          "difficulty": 1,
+          "id": 9,
+          "question": "What boxer's original name is Cassius Clay?"
+        }
+      }
     ```
 
-### GET /categories
+### `GET '/categories/{category_id}/questions'`
 - General:
-    - Returns a dictionary of all category objects and success value. The keys of the dictionary are the ids and the values are their corresponding string category types.
-- Sample: `curl http://127.0.0.1:5000/categories`
+    - Returns a dictionary of all question objects based on the selected category paginated into groups of 10, success value, current category id, and total questions. 
+- Sample: `curl http://127.0.0.1:5000/categories/2/questions`
 - Response:
     ``` {
-      "categories": {
-        "1": "Science",
-        "2": "Art",
-        "3": "Geography",
-        "4": "History",
-        "5": "Entertainment",
-        "6": "Sports"
-      },
-      "success": true
+      "category": "2",
+      "questions": [
+        {
+          "answer": "Escher",
+          "category": "2",
+          "difficulty": 1,
+          "id": 16,
+          "question": "Which Dutch graphic artist\u2013initials M C was a creator of optical illusions?"
+        },
+        {
+          "answer": "Mona Lisa",
+          "category": "2",
+          "difficulty": 3,
+          "id": 17,
+          "question": "La Giaconda is better known as what?"
+        },
+        {
+          "answer": "One",
+          "category": "2",
+          "difficulty": 4,
+          "id": 18,
+          "question": "How many paintings did Van Gogh sell in his lifetime?"
+        },
+        {
+          "answer": "Jackson Pollock",
+          "category": "2",
+          "difficulty": 2,
+          "id": 19,
+          "question": "Which American artist was a pioneer of Abstract Expressionism, and a leading exponent of action painting?"
+        }
+      ],
+      "success": true,
+      "total_questions": 23
+    }
+    ```
+
+### `GET '/quizzes'`
+- General:
+    - This enpoint takes quiz category and previous question parameters.
+    - Returns a random question within the given category,
+    if provided, that is not one of the previous questions. 
+- Sample: `curl http://127.0.0.1:5000/quizzes -X POST -H "Content-Type: application/json" -d '{"previous_questions": [6, 12], "quiz_category":{"id": 3, "type": "Geography"}'`
+- Response:
+    ``` {
+      "questions": {
+        "answer": "Lake Victoria",
+        "category": "3",
+        "difficulty": 2,
+        "id": 13,
+        "question": "What is the largest lake in Africa?"
+      }
     }
     ```
 
