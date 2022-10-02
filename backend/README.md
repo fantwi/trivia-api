@@ -91,21 +91,287 @@ You will need to provide detailed documentation of your API endpoints including 
 - General:
     - Returns a dictionary of all category objects and success value. The keys of the dictionary are the ids and the values are their corresponding string category types.
 - Sample: `curl http://127.0.0.1:5000/categories`
+- Response:
+    ``` {
+      "categories": {
+        "1": "Science",
+        "2": "Art",
+        "3": "Geography",
+        "4": "History",
+        "5": "Entertainment",
+        "6": "Sports"
+      },
+      "success": true
+    }
+    ```
 
-``` {
-  "categories": {
-    "1": "Science",
-    "2": "Art",
-    "3": "Geography",
-    "4": "History",
-    "5": "Entertainment",
-    "6": "Sports"
-  },
-  "success": true
-}
+### GET /questions
+- General: 
+    - Returns a dictionary of all question objects, all categories, current category, total number of questions and success value. 
+    - Results are paginated in groups of 10. Include a request argument to choose page number, starting from 1.
+- Sample: `curl http://127.0.0.1:5000/questions?page=2`
+- Response:
+    ```{
+      "categories": {
+        "1": "Science",
+        "2": "Art",
+        "3": "Geography",
+        "4": "History",
+        "5": "Entertainment",
+        "6": "Sports"
+      },
+      "current_category": {
+        "4": "History"
+      },
+      "questions": [
+        {
+          "answer": "One",
+          "category": "2",
+          "difficulty": 4,
+          "id": 18,
+          "question": "How many paintings did Van Gogh sell in his lifetime?"
+        },
+        {
+          "answer": "Jackson Pollock",
+          "category": "2",
+          "difficulty": 2,
+          "id": 19,
+          "question": "Which American artist was a pioneer of Abstract Expressionism, and a leading exponent of action painting?"
+        },
+        {
+          "answer": "The Liver",
+          "category": "1",
+          "difficulty": 4,
+          "id": 20,
+          "question": "What is the heaviest organ in the human body?"
+        },
+        {
+          "answer": "Alexander Fleming",
+          "category": "1",
+          "difficulty": 3,
+          "id": 21,
+          "question": "Who discovered penicillin?"
+        },
+        {
+          "answer": "Blood",
+          "category": "1",
+          "difficulty": 4,
+          "id": 22,
+          "question": "Hematology is a branch of medicine involving the study of what?"
+        },
+        {
+          "answer": "Scarab",
+          "category": "4",
+          "difficulty": 4,
+          "id": 23,
+          "question": "Which dung beetle was worshipped by the ancient Egyptians?"
+        },
+        {
+          "answer": "Somebody special",
+          "category": "5",
+          "difficulty": 5,
+          "id": 24,
+          "question": "Who is your best friend"
+        },
+        {
+          "answer": "Somebody special",
+          "category": "1",
+          "difficulty": 3,
+          "id": 25,
+          "question": "Who is your best friend"
+        },
+        {
+          "answer": "Somebody special",
+          "category": "5",
+          "difficulty": 3,
+          "id": 26,
+          "question": "Who is your best friend"
+        },
+        {
+          "answer": "atebuby",
+          "category": "4",
+          "difficulty": 4,
+          "id": 27,
+          "question": "where are you from "
+        }
+      ],
+      "success": true,
+      "total_questions": 23
+    ```
+
+### DELETE /questions/{book_id}
+- General:
+    - Deletes the question with the given ID if it exists. Returns the id of the deleted question, success value, total questions, and list of questions based on the current page number to update the frontend.
+- Sample: `curl -X DELETE http://127.0.0.1:5000/questions/22?page=2`
+- Response:
+    ``` {
+      "deleted": 22,
+      "questions": [
+        {
+          "answer": "One",
+          "category": "2",
+          "difficulty": 4,
+          "id": 18,
+          "question": "How many paintings did Van Gogh sell in his lifetime?"
+        },
+        {
+          "answer": "Jackson Pollock",
+          "category": "2",
+          "difficulty": 2,
+          "id": 19,
+          "question": "Which American artist was a pioneer of Abstract Expressionism, and a leading exponent of action painting?"
+        },
+        {
+          "answer": "The Liver",
+          "category": "1",
+          "difficulty": 4,
+          "id": 20,
+          "question": "What is the heaviest organ in the human body?"
+        },
+        {
+          "answer": "Alexander Fleming",
+          "category": "1",
+          "difficulty": 3,
+          "id": 21,
+          "question": "Who discovered penicillin?"
+        },
+        {
+          "answer": "Scarab",
+          "category": "4",
+          "difficulty": 4,
+          "id": 23,
+          "question": "Which dung beetle was worshipped by the ancient Egyptians?"
+        },
+        {
+          "answer": "Somebody special",
+          "category": "5",
+          "difficulty": 5,
+          "id": 24,
+          "question": "Who is your best friend"
+        },
+        {
+          "answer": "Somebody special",
+          "category": "1",
+          "difficulty": 3,
+          "id": 25,
+          "question": "Who is your best friend"
+        },
+        {
+          "answer": "Somebody special",
+          "category": "5",
+          "difficulty": 3,
+          "id": 26,
+          "question": "Who is your best friend"
+        },
+        {
+          "answer": "atebuby",
+          "category": "4",
+          "difficulty": 4,
+          "id": 27,
+          "question": "where are you from "
+        },
+        {
+          "answer": "Elknow",
+          "category": "3",
+          "difficulty": 1,
+          "id": 28,
+          "question": "What is your department"
+        }
+      ],
+      "success": true,
+      "total_questions": 22
+    }
+    ```
+
+### POST /questions
+- General:
+    - Creates a new question using the submitted question, answer, category, and difficulty. Returns the id of the created question, success value, total questions, and list of questions based on the current page number to update the frontend.
+- Sample: `curl http://127.0.0.1:5000/questions?page=3 -X POST -H "Content-Type: application/json" -d '{"question":"Who was the president of Ghana in 2015", "answer":"John Mahama", "category": "4", "difficulty": "3"}'`
+- Response:
+    ``` {
+      "created": 31,
+      "questions": [
+        {
+          "answer": "Jollof rice",
+          "category": "4",
+          "difficulty": 2,
+          "id": 29,
+          "question": "What is your favorite food"
+        },
+        {
+          "answer": "Kwame Nkrumah",
+          "category": "4",
+          "difficulty": 3,
+          "id": 30,
+          "question": "Who led the fight for Ghana's independence"
+        },
+        {
+          "answer": "John Mahama",
+          "category": "4",
+          "difficulty": 3,
+          "id": 31,
+          "question": "Who was the president of Ghana in 2015"
+        }
+      ],
+      "success": true,
+      "total_questions": 23
+    }
+    ```
+
+### GET /categories
+- General:
+    - Returns a dictionary of all category objects and success value. The keys of the dictionary are the ids and the values are their corresponding string category types.
+- Sample: `curl http://127.0.0.1:5000/categories`
+- Response:
+    ``` {
+      "categories": {
+        "1": "Science",
+        "2": "Art",
+        "3": "Geography",
+        "4": "History",
+        "5": "Entertainment",
+        "6": "Sports"
+      },
+      "success": true
+    }
+    ```
 ```
 
+### GET /categories
+- General:
+    - Returns a dictionary of all category objects and success value. The keys of the dictionary are the ids and the values are their corresponding string category types.
+- Sample: `curl http://127.0.0.1:5000/categories`
+- Response:
+    ``` {
+      "categories": {
+        "1": "Science",
+        "2": "Art",
+        "3": "Geography",
+        "4": "History",
+        "5": "Entertainment",
+        "6": "Sports"
+      },
+      "success": true
+    }
+    ```
 
+### GET /categories
+- General:
+    - Returns a dictionary of all category objects and success value. The keys of the dictionary are the ids and the values are their corresponding string category types.
+- Sample: `curl http://127.0.0.1:5000/categories`
+- Response:
+    ``` {
+      "categories": {
+        "1": "Science",
+        "2": "Art",
+        "3": "Geography",
+        "4": "History",
+        "5": "Entertainment",
+        "6": "Sports"
+      },
+      "success": true
+    }
+    ```
 
 ### Documentation Example
 
